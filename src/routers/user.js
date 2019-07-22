@@ -28,6 +28,36 @@ router.post('/users/login', async(req, res) => {
     }
 })
 
+router.post('/users/logout', auth, async(req, res) => {
+    try {
+        req.user.tokens = req.user.tokens.filter((token) => {
+            return token.token !== req.token
+        })
+
+        await req.user.save()
+        res.status(200).send()
+    }   catch (e) {
+        res.status(500).send()
+
+    }
+})
+
+router.post('/users/logoutall', auth, async(req,res) => {
+    try {
+        req.user.tokens = []
+        await req.user.save()
+        res.send()
+    } catch (e) {
+        res.status(500).send()
+    }
+})
+
+
+//Get users - Admin
+router.get('/user/me', auth, async (req, res) => {
+    res.send(req.user)
+})
+
 //Get user
 router.get('/users/:id', async (req, res) => {
     const _id = req.params.id
@@ -40,21 +70,6 @@ router.get('/users/:id', async (req, res) => {
     } catch (e) {
         res.status(500).send()
     }
-})
-
-//Get users - Admin
-router.get('/usersAdmin', async (req, res) => {
-    try {
-        const users = await User.find({})
-        res.send(users)
-    } catch (e) {
-        res.status(500).send()
-    }
-})
-
-//Get users
-router.get('/users/me', auth, async (req, res) => {
-    res.send(req.user)
 })
 
 //Update user
